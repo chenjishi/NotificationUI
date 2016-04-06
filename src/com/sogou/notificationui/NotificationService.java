@@ -4,7 +4,6 @@ import android.app.Notification;
 import android.content.Intent;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 /**
  * Created by chenjishi on 16/3/31.
@@ -21,8 +20,6 @@ public class NotificationService extends NotificationListenerService {
             intent.putExtra("notification", sbn);
             startService(intent);
         }
-
-        Log.i("test", "##nofication received");
     }
 
     @Override
