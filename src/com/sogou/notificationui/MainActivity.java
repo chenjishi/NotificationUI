@@ -48,14 +48,6 @@ public class MainActivity extends Activity {
         @Override
         public void onNotificationPosted(IStatusBarNotificationHolder sbnHolder,
                                          NotificationRankingUpdate update) {
-            StatusBarNotification sbn;
-            try {
-                sbn = sbnHolder.get();
-            } catch (RemoteException e) {
-                Log.w(TAG, "onNotificationPosted: Error receiving StatusBarNotification", e);
-                return;
-            }
-            Notification.Builder.rebuild(getContext(), sbn.getNotification());
 
             Log.i("test", "###onNotificationPosted");
         }
@@ -63,16 +55,12 @@ public class MainActivity extends Activity {
         @Override
         public void onNotificationRemoved(IStatusBarNotificationHolder sbnHolder,
                                           NotificationRankingUpdate update) {
-            StatusBarNotification sbn;
-            try {
-                sbn = sbnHolder.get();
-            } catch (RemoteException e) {
-                return;
-            }
+
         }
 
         @Override
         public void onListenerConnected(NotificationRankingUpdate update) {
+            Log.i("test", "onListenerConnected");
 
         }
 
