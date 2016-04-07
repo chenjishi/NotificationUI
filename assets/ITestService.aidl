@@ -8,5 +8,5 @@ interface ITestService {
 */
 	void setValue(int val);
 
-	void registerNotification(ComponentName name, int user);
+	void registerNotification(out ComponentName name, int user);
 }
