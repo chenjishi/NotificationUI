@@ -31,22 +31,22 @@ public class NotifyUIApplication extends Application {
         }, filter);
     }
 
-    public void startServicesIfNeeded() {
-        if (mServiceStarted) return;
-
-        mNotificationListener = new NotificationService();
-
-        // Set up the initial notification state.
-        try {
-            mNotificationListener.registerAsSystemService(this,
-                    new ComponentName(getPackageName(), getClass().getCanonicalName()),
-                    UserHandle.USER_ALL);
-            mServiceStarted = true;
-            Log.i("test", "###register OK");
-        } catch (RemoteException e) {
-            Log.e("test", "Unable to register notification listener", e);
-        }
-
-    }
+//    public void startServicesIfNeeded() {
+//        if (mServiceStarted) return;
+//
+//        mNotificationListener = new NotificationService();
+//
+//        // Set up the initial notification state.
+//        try {
+//            mNotificationListener.registerAsSystemService(this,
+//                    new ComponentName(getPackageName(), getClass().getCanonicalName()),
+//                    UserHandle.USER_ALL);
+//            mServiceStarted = true;
+//            Log.i("test", "###register OK");
+//        } catch (RemoteException e) {
+//            Log.e("test", "Unable to register notification listener", e);
+//        }
+//
+//    }
 
 }

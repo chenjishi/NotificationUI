@@ -14,7 +14,7 @@ public class NotifyUIService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.i("test", "##started NotifyUIService!!!!");
-        ((NotifyUIApplication) getApplication()).startServicesIfNeeded();
+//        ((NotifyUIApplication) getApplication()).startServicesIfNeeded();
     }
 
     @Override
