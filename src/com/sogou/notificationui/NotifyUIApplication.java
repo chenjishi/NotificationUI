@@ -29,8 +29,6 @@ public class NotifyUIApplication extends Application {
 
             }
         }, filter);
-
-        startServicesIfNeeded();
     }
 
     public void startServicesIfNeeded() {
