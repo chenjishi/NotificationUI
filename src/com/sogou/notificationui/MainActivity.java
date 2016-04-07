@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
         ITestService om = ITestService.Stub.asInterface(ServiceManager.getService("Test"));
         try {
             Log.i("test", "Going to call service");
-            om.registerNotification(this, new ComponentName(getPackageName(), getClass().getCanonicalName()), UserHandle.USER_ALL);
+            om.registerNotification(new ComponentName(getPackageName(), getClass().getCanonicalName()), UserHandle.USER_ALL);
             Log.i("test", "Service called succesfully");
         }
         catch (Exception e) {
