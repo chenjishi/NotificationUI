@@ -1,4 +1,7 @@
 package android.os;
+
+import android.content.ComponentName;
+
 interface ITestService {
 /**
 * {@hide}
