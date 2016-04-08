@@ -65,6 +65,7 @@ public class MainActivity extends Activity {
     public void onUnRegisterClicked(View view) {
         try {
             mNotificationListener.unregisterAsSystemService();
+            Log.i("test", "###unregister service");
         } catch (RemoteException e) {
             Log.i("test", "##unregister failed");
         }
