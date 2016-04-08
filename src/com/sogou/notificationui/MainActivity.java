@@ -1,6 +1,7 @@
 package com.sogou.notificationui;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.graphics.Color;
@@ -66,7 +67,13 @@ public class MainActivity extends Activity {
         public void onNotificationPosted(StatusBarNotification sbn) {
             super.onNotificationPosted(sbn);
 
-            Log.i("test", "##onNotificationPosted");
+            Notification notification = sbn.getNotification();
+            if (null == notification) return;
+            Bundle extras = notification.extras;
+            if (null == extras) return;
+
+            Log.i("test", "###title " + extras.getString("android.title"));
+            Log.i("test", "##text " + extras.getString("android.text"));
         }
 
         @Override
