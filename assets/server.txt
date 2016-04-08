@@ -1,4 +1,0 @@
-        Intent notifyIntent = new Intent();
-        notifyIntent.setComponent(new ComponentName("com.sogou.notificationui",
-                    "com.sogou.notificationui.NotifyUIService"));
-        context.startServiceAsUser(notifyIntent, UserHandle.OWNER);

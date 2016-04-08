@@ -53,7 +53,5 @@
         </activity>
         <service android:name=".NotificationPanelService"
                  android:exported="false"/>
-        <service android:name=".NotifyUIService"
-                 android:exported="true"/>
     </application>
 </manifest>

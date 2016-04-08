@@ -5,11 +5,13 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.ServiceManager;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.telecom.Log;
+import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -25,6 +27,10 @@ public class MainActivity extends Activity {
 
         mTextView = (TextView) findViewById(R.id.text_view);
 
+        changeStatus();
+    }
+
+    private void changeStatus() {
         boolean isNotificationEnabled = isNotificationEnabled();
         mTextView.setTextColor(isNotificationEnabled ? 0xFF009588 : Color.RED);
         mTextView.setText(isNotificationEnabled ? "接收通知已打开" : "接收通知未打开");
@@ -34,6 +40,8 @@ public class MainActivity extends Activity {
         ContentResolver contentResolver = getContentResolver();
         String enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
 
+        Log.i("test", "##listener " + enabledListeners);
+
         if (!TextUtils.isEmpty(enabledListeners)) {
             return enabledListeners.contains(getPackageName() + "/" + getPackageName() + ".NotificationService");
         } else {
@@ -42,19 +50,30 @@ public class MainActivity extends Activity {
     }
 
     public void onButtonClicked(View view) {
-        ITestService om = ITestService.Stub.asInterface(ServiceManager.getService("Test"));
         try {
-            Log.i("test", "Going to call service");
-            om.registerNotification(new ComponentName(getPackageName(), getClass().getCanonicalName()), UserHandle.USER_ALL);
-            Log.i("test", "Service called succesfully");
-        }
-        catch (Exception e) {
-            Log.i("test", "FAILED to call service");
-            e.printStackTrace();
+            mNotificationListener.registerAsSystemService(this, new ComponentName(getPackageName(), getClass().getCanonicalName()),
+                    UserHandle.USER_ALL);
+            Log.i("test", "###registered");
+        } catch (RemoteException e) {
+            Log.i("test", "###unable to register notification listener " + e);
         }
 
-        boolean isNotificationEnabled = isNotificationEnabled();
-        mTextView.setTextColor(isNotificationEnabled ? 0xFF009588 : Color.RED);
-        mTextView.setText(isNotificationEnabled ? "接收通知已打开" : "接收通知未打开");
+        changeStatus();
     }
+
+    private final NotificationListenerService mNotificationListener = new NotificationListenerService() {
+        @Override
+        public void onNotificationPosted(StatusBarNotification sbn) {
+            super.onNotificationPosted(sbn);
+
+            Log.i("test", "##onNotificationPosted");
+        }
+
+        @Override
+        public void onNotificationRemoved(StatusBarNotification sbn) {
+            super.onNotificationRemoved(sbn);
+            Log.i("test", "##onNotificationRemoved");
+
+        }
+    };
 }
