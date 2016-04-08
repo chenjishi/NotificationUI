@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NotificationUI</string>
-    <string name="button">点击注册</string>
+    <string name="button">注册监听服务</string>
+    <string name="unregister_service">注销监听服务</string>
 </resources>

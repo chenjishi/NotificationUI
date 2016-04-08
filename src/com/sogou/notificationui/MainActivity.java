@@ -62,6 +62,14 @@ public class MainActivity extends Activity {
         changeStatus();
     }
 
+    public void onUnRegisterClicked(View view) {
+        try {
+            mNotificationListener.unregisterAsSystemService();
+        } catch (RemoteException e) {
+            Log.i("test", "##unregister failed");
+        }
+    }
+
     private final NotificationListenerService mNotificationListener = new NotificationListenerService() {
         @Override
         public void onNotificationPosted(StatusBarNotification sbn) {
