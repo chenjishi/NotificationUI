@@ -1,103 +1,146 @@
 package com.sogou.notificationui;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
- * Created by chenjishi on 16/3/22.
+ * Created by chenjishi on 16/4/13.
  */
-public class NotificationPanelService extends Service implements View.OnClickListener {
+public class NotificationPanelService extends Service implements View.OnClickListener, NotificationRow.ActionClickListener {
+
+    private LinearLayout mContainer;
 
     private WindowManager mWindowManager;
+
+    private float mDensity;
+
+    private WindowManager.LayoutParams mWindowParams;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        mDensity = getResources().getDisplayMetrics().density;
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        mWindowParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PRIORITY_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        mWindowParams.x = 0;
+        mWindowParams.y = 0;
+        mWindowParams.gravity = Gravity.TOP;
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (null != v.getTag()) {
+            final StatusBarNotification sbn = (StatusBarNotification) v.getTag();
+            mContainer.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    hideAnimation(sbn);
+                }
+            }, 100);
+        }
+    }
+
+    public void closePanel() {
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         StatusBarNotification sbn = intent.getParcelableExtra("notification");
 
-        final float density = getResources().getDisplayMetrics().density;
-
         if (null != sbn) {
             Notification notification = sbn.getNotification();
+            if (null != mContainer) {
+                mWindowManager.removeView(mContainer);
+                mContainer = null;
+            }
 
             if (null != notification) {
-                Bundle extras = notification.extras;
+                mContainer = new LinearLayout(this);
+                mContainer.setOrientation(LinearLayout.VERTICAL);
 
-                if (null != extras) {
-                    LinearLayout layout = getNotificationPanel(extras);
+                NotificationRow row = new NotificationRow(this);
+                row.setOnClickListener(this);
+                row.setActionClickListener(this);
+                row.setTag(sbn);
+                row.setNotification(sbn);
+                mContainer.setVisibility(View.INVISIBLE);
 
-                    WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams((int) (density * 200), WindowManager.LayoutParams.WRAP_CONTENT,
-                            WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                            PixelFormat.TRANSLUCENT);
-                    layoutParams.x = 0;
-                    layoutParams.y = 0;
-                    layoutParams.gravity = Gravity.CENTER;
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                mContainer.addView(row, lp);
+                mWindowManager.addView(mContainer, mWindowParams);
 
-                    mWindowManager.addView(layout, layoutParams);
-                }
+                mContainer.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showAnimation();
+                    }
+                }, 100);
             }
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public void onClick(View v) {
-        mWindowManager.removeView(v);
+    private void showAnimation() {
+        mContainer.setTranslationY(-mContainer.getHeight());
+        mContainer.animate().translationY(0)
+                .setDuration(300)
+                .setInterpolator(new LinearInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        mContainer.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                    }
+                });
     }
 
-    private LinearLayout getNotificationPanel(Bundle extras) {
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setBackgroundColor(0xFF646464);
-        layout.setOnClickListener(this);
+    private void hideAnimation(final StatusBarNotification sbn) {
+        mContainer.animate().translationY(-mContainer.getHeight())
+                .setDuration(300)
+                .setInterpolator(new LinearInterpolator())
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mContainer.setVisibility(View.GONE);
+                        mWindowManager.removeView(mContainer);
+                        mContainer = null;
 
-        TextView titleText = new TextView(this);
-        String title = extras.getString("android.title");
-        Log.i("test", "#title " + title);
-        if (!TextUtils.isEmpty(title)) {
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            titleText.setText(title);
-            titleText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16.f);
-            titleText.setTextColor(0xFF333333);
-            layout.addView(titleText, lp);
-        }
-
-        TextView textView = new TextView(this);
-        String detailText = extras.getString("android.text");
-        Log.i("test", "#text " + detailText);
-
-        if (!TextUtils.isEmpty(detailText)) {
-            LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            textView.setText(detailText);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.f);
-            textView.setTextColor(0xFF999999);
-            layout.addView(textView, lp1);
-        }
-
-        return layout;
+                        NotificationData.getInstance().remove(sbn.getKey());
+                        try {
+                            sbn.getNotification().contentIntent.send();
+                            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                            manager.cancel(sbn.getId());
+                        } catch (PendingIntent.CanceledException e) {
+                        }
+                    }
+                });
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -105,7 +148,13 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onActionClicked(PendingIntent pendingIntent) {
+        try {
+            pendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+        }
+
+        mWindowManager.removeView(mContainer);
+        mContainer = null;
     }
 }

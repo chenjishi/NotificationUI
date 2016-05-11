@@ -1,95 +1,75 @@
 package com.sogou.notificationui;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.content.ComponentName;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.os.UserHandle;
 import android.provider.Settings;
-import android.service.notification.NotificationListenerService;
-import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    private TextView mTextView;
-
+    private EntryListAdapter mListAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        mTextView = (TextView) findViewById(R.id.text_view);
+        mListAdapter = new EntryListAdapter(this);
+        ListView listView = (ListView) findViewById(R.id.list_view);
+        listView.setAdapter(mListAdapter);
 
-        changeStatus();
     }
 
-    private void changeStatus() {
-        boolean isNotificationEnabled = isNotificationEnabled();
-        mTextView.setTextColor(isNotificationEnabled ? 0xFF009588 : Color.RED);
-        mTextView.setText(isNotificationEnabled ? "接收通知已打开" : "接收通知未打开");
+    @Override
+    protected void onResume() {
+        super.onResume();
+        changeLabelStatus();
+
+        mListAdapter.updateData();
+        showDialog();
+    }
+
+    public void onNotificationEnableButtonClicked(View view) {
+        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+    }
+
+    private void changeLabelStatus() {
+        TextView textView = (TextView) findViewById(R.id.btn_open);
+        textView.setTextColor(isNotificationEnabled() ? Color.WHITE : Color.RED);
     }
 
     private boolean isNotificationEnabled() {
         ContentResolver contentResolver = getContentResolver();
         String enabledListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
 
-        Log.i("test", "##listener " + enabledListeners);
-
         if (!TextUtils.isEmpty(enabledListeners)) {
-            return enabledListeners.contains(getPackageName() + "/" + getPackageName() + ".NotificationService");
+            return enabledListeners.contains(getPackageName() + "/" + getPackageName() + ".NotificationReceiveService");
         } else {
             return false;
         }
     }
 
-    public void onButtonClicked(View view) {
-        try {
-            mNotificationListener.registerAsSystemService(this, new ComponentName(getPackageName(), getClass().getCanonicalName()),
-                    UserHandle.USER_ALL);
-            Log.i("test", "###registered");
-        } catch (RemoteException e) {
-            Log.i("test", "###unable to register notification listener " + e);
-        }
-
-        changeStatus();
-    }
-
-    public void onUnRegisterClicked(View view) {
-        try {
-            mNotificationListener.unregisterAsSystemService();
-            Log.i("test", "###unregister service");
-        } catch (RemoteException e) {
-            Log.i("test", "##unregister failed");
+    private void showDialog() {
+        if (!isNotificationEnabled()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.tip)
+                    .setMessage(R.string.tip_message)
+                    .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
         }
     }
-
-    private final NotificationListenerService mNotificationListener = new NotificationListenerService() {
-        @Override
-        public void onNotificationPosted(StatusBarNotification sbn) {
-            super.onNotificationPosted(sbn);
-
-            Notification notification = sbn.getNotification();
-            if (null == notification) return;
-            Bundle extras = notification.extras;
-            if (null == extras) return;
-
-            Log.i("test", "###title " + extras.getString("android.title"));
-            Log.i("test", "##text " + extras.getString("android.text"));
-        }
-
-        @Override
-        public void onNotificationRemoved(StatusBarNotification sbn) {
-            super.onNotificationRemoved(sbn);
-            Log.i("test", "##onNotificationRemoved");
-
-        }
-    };
 }
