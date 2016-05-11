@@ -22,7 +22,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:gravity="center"
-                android:text="Enable Listener"
+                android:text="@string/enable_listener"
                 android:background="@drawable/item_highlight"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
