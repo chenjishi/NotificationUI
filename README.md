@@ -1,2 +1,0 @@
-# NotificationUI
-test demo

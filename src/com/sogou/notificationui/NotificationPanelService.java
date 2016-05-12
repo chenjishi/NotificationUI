@@ -27,14 +27,11 @@ public class NotificationPanelService extends Service implements View.OnClickLis
 
     private WindowManager mWindowManager;
 
-    private float mDensity;
-
     private WindowManager.LayoutParams mWindowParams;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mDensity = getResources().getDisplayMetrics().density;
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         mWindowParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT,
@@ -87,18 +84,48 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 mContainer.addView(row, lp);
-                mWindowManager.addView(mContainer, mWindowParams);
 
-                mContainer.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        showAnimation();
-                    }
-                }, 100);
+                if (sbn.getPackageName().equals("com.sogou.carphone")) {
+                    showPhoneNotification();
+                } else {
+                    mWindowManager.addView(mContainer, mWindowParams);
+
+                    mContainer.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAnimation();
+                        }
+                    }, 100);
+                }
             }
         }
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void showPhoneNotification() {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PRIORITY_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+        lp.x = 0;
+        lp.y = 0;
+        lp.gravity = Gravity.LEFT|Gravity.BOTTOM;
+        mWindowManager.addView(mContainer, lp);
+        mContainer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.setTranslationX(-mContainer.getWidth());
+                mContainer.animate().translationX(0)
+                        .setDuration(300)
+                        .setInterpolator(new LinearInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                mContainer.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+            }
+        }, 100);
     }
 
     private void showAnimation() {
@@ -120,25 +147,41 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     }
 
     private void hideAnimation(final StatusBarNotification sbn) {
-        mContainer.animate().translationY(-mContainer.getHeight())
-                .setDuration(300)
-                .setInterpolator(new LinearInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mContainer.setVisibility(View.GONE);
-                        mWindowManager.removeView(mContainer);
-                        mContainer = null;
-
-                        NotificationData.getInstance().remove(sbn.getKey());
-                        try {
-                            sbn.getNotification().contentIntent.send();
-                            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                            manager.cancel(sbn.getId());
-                        } catch (PendingIntent.CanceledException e) {
+        if (sbn.equals("com.sogou.carphone")) {
+            mContainer.animate().translationX(-mContainer.getWidth())
+                    .setDuration(300)
+                    .setInterpolator(new LinearInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            animateEnd(sbn);
                         }
-                    }
-                });
+                    });
+        } else {
+            mContainer.animate().translationY(-mContainer.getHeight())
+                    .setDuration(300)
+                    .setInterpolator(new LinearInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            animateEnd(sbn);
+                        }
+                    });
+        }
+    }
+
+    private void animateEnd(StatusBarNotification sbn) {
+        mContainer.setVisibility(View.GONE);
+        mWindowManager.removeView(mContainer);
+        mContainer = null;
+
+        NotificationData.getInstance().remove(sbn.getKey());
+        try {
+            sbn.getNotification().contentIntent.send();
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(sbn.getId());
+        } catch (PendingIntent.CanceledException e) {
+        }
     }
 
 
