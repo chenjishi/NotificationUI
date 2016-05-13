@@ -115,20 +115,26 @@ public class NotificationPanelService extends Service implements View.OnClickLis
             row.setActionClickListener(this);
             row.setTag(sbn);
             row.setNotification(sbn);
-            mContainer.setVisibility(View.INVISIBLE);
+//            mContainer.setVisibility(View.INVISIBLE);
+
+            Log.i("test", "##here");
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContainer.addView(row, lp);
 
+            Log.i("test", "##pkg name " + sbn.getPackageName());
             if (sbn.getPackageName().equals("com.sogou.carphone")) {
+                Log.i("test", "#is car");
                 showPhoneNotification();
             } else {
                 mWindowManager.addView(mContainer, mWindowParams);
+                Log.i("test", "EEE");
 
                 mContainer.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        Log.i("test", "##run");
                         showAnimation();
                     }
                 }, 100);
