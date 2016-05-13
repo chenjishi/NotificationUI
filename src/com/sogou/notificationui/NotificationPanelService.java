@@ -10,9 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.os.UserHandle;
+import android.os.*;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -39,10 +37,17 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     private final NotificationListenerService mNotificationListener = new NotificationListenerService() {
 
         @Override
-        public void onNotificationPosted(StatusBarNotification sbn, RankingMap rankingMap) {
+        public void onNotificationPosted(final StatusBarNotification sbn, RankingMap rankingMap) {
             super.onNotificationPosted(sbn, rankingMap);
-            addNotificationPanel(sbn);
-            Log.i("test", "###onNotificationPosted ");
+            mNotificationData.add(sbn);
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    addNotificationPanel(sbn);
+                    Log.i("test", "###onNotificationPosted ");
+                }
+            });
         }
 
         @Override
@@ -95,7 +100,6 @@ public class NotificationPanelService extends Service implements View.OnClickLis
         if (null == sbn) return;
 
         Log.i("test", "##sbn " + sbn);
-        mNotificationData.add(sbn);
         Log.i("test", "###here");
         Notification notification = sbn.getNotification();
         Log.i("test", "##notification " + notification);
