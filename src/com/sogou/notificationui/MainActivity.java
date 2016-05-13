@@ -31,14 +31,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        changeLabelStatus();
-
         mListAdapter.updateData();
-        showDialog();
     }
 
     public void onNotificationEnableButtonClicked(View view) {
-        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+//        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+        Intent intent = new Intent(this, NotificationPanelService.class);
+        startService(intent);
     }
 
     private void changeLabelStatus() {
