@@ -115,17 +115,29 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContainer.addView(row, lp);
 
+<<<<<<< HEAD
             if (sbn.getPackageName().equals("com.sogou.carphone")) {
                 showPhoneNotification();
             } else {
                 mWindowManager.addView(mContainer, mWindowParams);
+=======
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                mContainer.addView(row, lp);
+>>>>>>> ac31ca36695a84ed6d0ee0634fca024859e073f2
 
-                mContainer.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        showAnimation();
-                    }
-                }, 100);
+                if (sbn.getPackageName().equals("com.sogou.carphone")) {
+                    showPhoneNotification();
+                } else {
+                    mWindowManager.addView(mContainer, mWindowParams);
+
+                    mContainer.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showAnimation();
+                        }
+                    }, 100);
+                }
             }
         }
     }
@@ -140,7 +152,11 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                 WindowManager.LayoutParams.TYPE_PRIORITY_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
         lp.x = 0;
         lp.y = 0;
+<<<<<<< HEAD
         lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
+=======
+        lp.gravity = Gravity.LEFT|Gravity.BOTTOM;
+>>>>>>> ac31ca36695a84ed6d0ee0634fca024859e073f2
         mWindowManager.addView(mContainer, lp);
         mContainer.postDelayed(new Runnable() {
             @Override
