@@ -45,7 +45,6 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                 @Override
                 public void run() {
                     addNotificationPanel(sbn);
-                    Log.i("test", "###onNotificationPosted ");
                 }
             });
         }
@@ -54,7 +53,6 @@ public class NotificationPanelService extends Service implements View.OnClickLis
         public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap) {
             super.onNotificationRemoved(sbn, rankingMap);
             mNotificationData.remove(sbn.getKey());
-            Log.i("test", "###onNotificationRemoved ");
         }
     };
 
@@ -72,12 +70,9 @@ public class NotificationPanelService extends Service implements View.OnClickLis
 
         mNotificationData = NotificationData.getInstance();
 
-        Log.i("test", "###NotificationPanelService started!");
-
         try {
             mNotificationListener.registerAsSystemService(this, new ComponentName(getPackageName(), getClass().getCanonicalName()),
                     UserHandle.USER_ALL);
-            Log.i("test", "##registered!!");
         } catch (RemoteException e) {
             Log.e("NotificationUI", "Unable to register notification listener " + e);
         }
@@ -99,17 +94,12 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     private void addNotificationPanel(StatusBarNotification sbn) {
         if (null == sbn) return;
 
-        Log.i("test", "##sbn " + sbn);
-        Log.i("test", "###here");
         Notification notification = sbn.getNotification();
-        Log.i("test", "##notification " + notification);
-        Log.i("test", "##mContainer " + mContainer);
         if (null != mContainer) {
             mWindowManager.removeView(mContainer);
             mContainer = null;
         }
 
-        Log.i("test", "##notification " + notification);
         if (null != notification) {
             mContainer = new LinearLayout(this);
             mContainer.setOrientation(LinearLayout.VERTICAL);
@@ -119,26 +109,19 @@ public class NotificationPanelService extends Service implements View.OnClickLis
             row.setActionClickListener(this);
             row.setTag(sbn);
             row.setNotification(sbn);
-//            mContainer.setVisibility(View.INVISIBLE);
-
-            Log.i("test", "##here");
+            mContainer.setVisibility(View.INVISIBLE);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContainer.addView(row, lp);
 
-            Log.i("test", "##pkg name " + sbn.getPackageName());
             if (sbn.getPackageName().equals("com.sogou.carphone")) {
-                Log.i("test", "#is car");
                 showPhoneNotification();
             } else {
                 mWindowManager.addView(mContainer, mWindowParams);
-                Log.i("test", "EEE");
-
                 mContainer.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Log.i("test", "##run");
                         showAnimation();
                     }
                 }, 100);
@@ -177,7 +160,6 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     }
 
     private void showAnimation() {
-        Log.i("test", "#showAnimation");
         mContainer.setTranslationY(-mContainer.getHeight());
         mContainer.animate().translationY(0)
                 .setDuration(300)
@@ -187,7 +169,6 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                     @Override
                     public void onAnimationStart(Animator animation) {
                         mContainer.setVisibility(View.VISIBLE);
-                        Log.i("test", "##onAnimationStart");
                     }
 
                     @Override
