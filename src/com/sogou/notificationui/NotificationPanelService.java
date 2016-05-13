@@ -96,7 +96,10 @@ public class NotificationPanelService extends Service implements View.OnClickLis
 
         Log.i("test", "##sbn " + sbn);
         mNotificationData.add(sbn);
+        Log.i("test", "###here");
         Notification notification = sbn.getNotification();
+        Log.i("test", "##notification " + notification);
+        Log.i("test", "##mContainer " + mContainer);
         if (null != mContainer) {
             mWindowManager.removeView(mContainer);
             mContainer = null;
