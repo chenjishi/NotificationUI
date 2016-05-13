@@ -94,6 +94,7 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     private void addNotificationPanel(StatusBarNotification sbn) {
         if (null == sbn) return;
 
+        Log.i("test", "##sbn " + sbn);
         mNotificationData.add(sbn);
         Notification notification = sbn.getNotification();
         if (null != mContainer) {
@@ -101,6 +102,7 @@ public class NotificationPanelService extends Service implements View.OnClickLis
             mContainer = null;
         }
 
+        Log.i("test", "##notification " + notification);
         if (null != notification) {
             mContainer = new LinearLayout(this);
             mContainer.setOrientation(LinearLayout.VERTICAL);
@@ -162,6 +164,7 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     }
 
     private void showAnimation() {
+        Log.i("test", "#showAnimation");
         mContainer.setTranslationY(-mContainer.getHeight());
         mContainer.animate().translationY(0)
                 .setDuration(300)
@@ -171,6 +174,7 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                     @Override
                     public void onAnimationStart(Animator animation) {
                         mContainer.setVisibility(View.VISIBLE);
+                        Log.i("test", "##onAnimationStart");
                     }
 
                     @Override
