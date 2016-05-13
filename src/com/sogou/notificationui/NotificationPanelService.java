@@ -72,6 +72,7 @@ public class NotificationPanelService extends Service implements View.OnClickLis
         try {
             mNotificationListener.registerAsSystemService(this, new ComponentName(getPackageName(), getClass().getCanonicalName()),
                     UserHandle.USER_ALL);
+            Log.i("test", "##registered!!");
         } catch (RemoteException e) {
             Log.e("NotificationUI", "Unable to register notification listener " + e);
         }
