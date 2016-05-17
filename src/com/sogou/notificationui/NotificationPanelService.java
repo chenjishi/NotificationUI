@@ -13,6 +13,7 @@ import android.graphics.PixelFormat;
 import android.os.*;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -115,8 +116,11 @@ public class NotificationPanelService extends Service implements View.OnClickLis
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mContainer.addView(row, lp);
 
-            if (sbn.getPackageName().equals("com.sogou.carphone")) {
+            String pkgName = sbn.getPackageName();
+            if (pkgName.equals("com.sogou.carphone")) {
                 showPhoneNotification();
+            } else if (pkgName.equals("com.sogou.smartcar.maps")) {
+                showNavigationNotification();
             } else {
                 mWindowManager.addView(mContainer, mWindowParams);
                 mContainer.postDelayed(new Runnable() {
@@ -132,6 +136,34 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void showNavigationNotification() {
+        final DisplayMetrics metrics = getResources().getDisplayMetrics();
+        final int screenWidth = metrics.widthPixels;
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PRIORITY_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+        lp.x = 0;
+        lp.y = 0;
+        lp.gravity = Gravity.TOP | Gravity.RIGHT;
+        mWindowManager.addView(mContainer, lp);
+        mContainer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mContainer.setTranslationX(screenWidth);
+                mContainer.animate().translationX(screenWidth - mContainer.getWidth())
+                        .setDuration(300)
+                        .setInterpolator(new LinearInterpolator())
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                mContainer.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+            }
+        }, 100);
     }
 
     private void showPhoneNotification() {
@@ -178,8 +210,20 @@ public class NotificationPanelService extends Service implements View.OnClickLis
     }
 
     private void hideAnimation(final StatusBarNotification sbn) {
-        if (sbn.equals("com.sogou.carphone")) {
+        String pkgName = sbn.getPackageName();
+
+        if (pkgName.equals("com.sogou.carphone")) {
             mContainer.animate().translationX(-mContainer.getWidth())
+                    .setDuration(300)
+                    .setInterpolator(new LinearInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            animateEnd(sbn);
+                        }
+                    });
+        } else if (pkgName.equals("com.sogou.smartcar.maps")) {
+            mContainer.animate().translationX(getResources().getDisplayMetrics().widthPixels)
                     .setDuration(300)
                     .setInterpolator(new LinearInterpolator())
                     .setListener(new AnimatorListenerAdapter() {
