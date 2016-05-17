@@ -15,21 +15,6 @@
                 android:text="@string/latest_notice"
                 android:textSize="18sp"
                 android:textColor="@android:color/white"/>
-        <TextView
-                android:id="@+id/btn_open"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:gravity="center"
-                android:text="@string/enable_listener"
-                android:background="@drawable/item_highlight"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:clickable="true"
-                android:onClick="onNotificationEnableButtonClicked"
-                android:textSize="15sp"
-                android:textColor="@android:color/white"/>
     </RelativeLayout>
     <ListView
             android:id="@+id/list_view"
