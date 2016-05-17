@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="highlight_color">#66CCCCCC</color>
-    <color name="divider_color">#C8C8C8</color>
-    <color name="btn_normal">#00B0FF</color>
-    <color name="btn_focus">#80D8FF</color>
-</resources>
